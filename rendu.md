@@ -167,5 +167,11 @@ head -20 res.txt
 "100140"        5
 "100141"        26
 ```
-
+### Analyse des logs
 #### [Logs complets](https://github.com/Thib0727/BigDataCC2-Thollet-Muller/blob/main/log_q2.txt)
+
+2. Analyse des volumes (Compteurs Map-Reduce)
+Le job a traité avec succès l'intégralité du fichier source, comme en témoignent les 1 093 361 lignes lues (Map input records). Le Mapper a correctement filtré l'en-tête pour ne générer que 1 093 360 enregistrements utiles. La phase de réduction a permis d'identifier 14 592 utilisateurs uniques (Reduce input groups), consolidant ainsi l'ensemble des tags émis dans une liste synthétique. La précision des compteurs de sortie (Reduce output records) correspondant exactement aux groupes d'entrée confirme l'intégrité du processus d'agrégation distribuée.
+
+3. Performance et Parallélisme
+Sur le plan infrastructurel, le job a profité d'un parallélisme de niveau 2 (Launched map tasks), optimisant le temps de traitement global sur les deux blocs de données HDFS. L'efficacité du cluster est soulignée par le score de 100% en localité de données (Data-local map tasks), évitant ainsi toute latence liée au réseau lors de la lecture. Le temps de calcul total, réparti entre 17,8s pour le mapping et 8,9s pour le reducing, démontre la capacité de Hadoop à traiter des volumes dépassant le million de lignes en moins de trente secondes, tout en assurant un nettoyage automatique des ressources temporaires après l'extraction finale vers le fichier res.txt.
