@@ -100,11 +100,9 @@ python tags_per_movie.py -r hadoop --hadoop-streaming-jar /usr/hdp/current/hadoo
 ### Analyse des logs
 ##### [Logs complets](https://github.com/Thib0727/BigDataCC2-Thollet-Muller/blob/main/log_q1.txt)
 
-1. Analyse des volumes (Compteurs Map-Reduce)
-Sur un total de 1 093 361 lignes lues, le Mapper a généré exactement 1 093 360 couples clé-valeur (on retire la ligne des entêtes). La phase de réduction a ensuite agrégé ce million de lignes en 45 251 groupes uniques, ce qui correspond au nombre précis de films ayant reçu au moins une évaluation. Cette réduction drastique du volume de données (de ~1M à ~45k lignes) illustre parfaitement l'efficacité du paradigme MapReduce pour l'agrégation de données massives.
+Sur un total de 1 093 361 lignes lues, le Mapper a généré exactement 1 093 360 couples clé-valeur (on retire la ligne des entêtes). La phase de réduction a ensuite agrégé ce million de lignes en 45 251 groupes uniques, ce qui correspond au nombre précis de films ayant reçu au moins une évaluation.
 
-2. Performance et Parallélisme
-L'analyse des logs révèle une exploitation optimale des mécanismes de distribution de Hadoop. Le framework a segmenté le fichier d'entrée en deux blocs distincts (Launched map tasks = 2), permettant un traitement parallèle qui divise le temps d'exécution. Hadoop a exécuté le code Python directement sur les nœuds stockant physiquement les blocs de données, supprimant ainsi tout goulot d'étranglement lié au transfert réseau. Avec un temps de traitement cumulé d'environ 30 secondes pour plus d'un million d'enregistrements, les performances sont excellentes pour un environnement Sandbox, démontrant la faible latence du moteur YARN lors de l'allocation des ressources.
+Le framework a segmenté le fichier d'entrée en deux blocs distincts (Launched map tasks = 2), permettant un traitement parallèle qui divise le temps d'exécution par 2. Avec un temps de traitement cumulé d'environ 30 secondes pour plus d'un million d'enregistrements, les performances sont excellentes pour un environnement Sandbox.
 
 
 ## 2- Combien de tags chaque utilisateur a-t-il ajoutés ?
@@ -179,11 +177,9 @@ head -20 res.txt
 ### Analyse des logs
 #### [Logs complets](https://github.com/Thib0727/BigDataCC2-Thollet-Muller/blob/main/log_q2.txt)
 
-1. Analyse des volumes (Compteurs Map-Reduce)
-Le Mapper a correctement filtré le fichier des 1 093 360 enregistrements utiles (sans la ligne d'entête). La phase de réduction a permis d'identifier 14 592 utilisateurs uniques. Les compteurs de sortie correspondent aux groupes d'entrée ce qui confirme l'intégrité du processus d'agrégation distribuée.
+Le Mapper a correctement filtré le fichier des 1 093 360 enregistrements utiles (sans la ligne d'entête). La phase de réduction a permis d'identifier 14 592 utilisateurs uniques. Les compteurs de sortie correspondent aux groupes d'entrée ce qui confirme que le traitement s'est bien déroulé.
 
-2. Performance et Parallélisme
-On optimise le processus grâce au parallélisme ce qui réduit grandement le temps de traitement global sur les deux blocs de données HDFS. L'efficacité du cluster est soulignée par le score de 100% en localité de données (Data-local map tasks). Le temps de calcul total, réparti est de 17,8s pour le mapping et 8,9s pour produire enfin le fichier final res.txt.
+Le temps de calcul total, réparti est de 17,8s pour le mapping et 8,9s pour produire enfin le fichier final res.txt.
 
 
 ## 3- Combien de blocs le fichier occupe-t-il dans HDFS dans chacune des configurations ?
