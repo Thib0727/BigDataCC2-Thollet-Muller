@@ -273,6 +273,16 @@ head -20 res.txt
 "#rap"  1
 "#science"      1
 ```
+### Analyse des logs
+##### [Logs complets](https://github.com/Thib0727/BigDataCC2-Thollet-Muller/blob/main/log%20q4.txt)
+
+
+1. Analyse des volumes (Compteurs Map-Reduce)
+Le mécanisme de filtrage a permis de ne conserver que les 1 093 360 enregistrements de données réelles pour la phase de mapping. L'étape de réduction a mis en évidence 65 372 groupes distincts.
+
+2. Performance et Parallélisme
+La performance du traitement repose sur une segmentation efficace en deux tâches de mapping parallèles. Bien que le temps de traitement des mappers soit légèrement supérieur aux jobs précédents (~22 secondes), la fluidité de la phase de "Shuffle" et la rapidité de la réduction (~9,6 secondes) ont permis de finaliser l'extraction des données vers le fichier res.txt rapidement.
+
 
 
 ## 5- Pour chaque film, combien de tags le même utilisateur a-t-il introduits ?
@@ -346,3 +356,16 @@ python tags_duo.py -r hadoop --hadoop-streaming-jar /usr/hdp/current/hadoop-mapr
 ["1", "111183"] 1
 ["1", "112824"] 3
 ```
+
+### Analyse des logs
+##### [Logs complets](https://github.com/Thib0727/BigDataCC2-Thollet-Muller/blob/main/log%20q5.txt)
+
+
+1. Analyse des volumes (Compteurs Map-Reduce)
+Le traitement du dataset via le script tags_duo.py a permis d'extraire 1 093 360 enregistrements utiles après élimination de l'en-tête. Les clefs de hachage ont permis de générer 305 356 groupes distincts.
+
+
+2. Performance et Parallélisme
+Le cluster a exécuté les deux tâches de mapping en évitant tout transfert inutile de données sur le réseau. On observe une augmentation significative du temps de traitement du Reduce (~20,6 secondes), directement liée à la complexité de la phase de tri (Shuffle & Sort). Malgré cela le traitement s'est terminé avec succès en moins de 45 secondes.
+
+
