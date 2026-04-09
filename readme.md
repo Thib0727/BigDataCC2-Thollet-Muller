@@ -217,3 +217,59 @@ head -20 res.txt
 "#science"      1
 
 
+# 5- Pour chaque film, combien de tags le même utilisateur a-t-il introduits ?
+
+# -*- coding: utf-8 -*-
+from mrjob.job import MRJob
+
+class TagsDuo(MRJob):
+
+    def mapper(self, _, line):
+        # Ignorer l'en-tête
+        if line.startswith("userId"):
+            return
+            
+        try:
+            row = line.split(',')
+            user_id = row[0]
+            movie_id = row[1]
+            
+            # On émet un tuple (Film, Utilisateur) comme clé
+            yield (movie_id, user_id), 1
+        except Exception:
+            pass
+
+    def reducer(self, duo, counts):
+        # duo contient (movie_id, user_id)
+        # On additionne le nombre de tags pour ce duo précis
+        yield duo, sum(counts)
+
+if __name__ == '__main__':
+    TagsDuo.run()
+
+# On lance le script python  
+python tags_duo.py -r hadoop --hadoop-streaming-jar /usr/hdp/current/hadoop-mapreduce-client/hadoop-streaming.jar ml-25m/tags.csv > res.txt
+
+# Analyse d'un echantillon du resultat
+[maria_dev@sandbox-hdp ~]$ head -20 res.txt
+
+["1", "100538"] 4
+["1", "10231"]  2
+["1", "102568"] 4
+["1", "102901"] 1
+["1", "103368"] 1
+["1", "103371"] 1
+["1", "103883"] 3
+["1", "104394"] 9
+["1", "1048"]   1
+["1", "105717"] 1
+["1", "105809"] 5
+["1", "107432"] 2
+["1", "109146"] 2
+["1", "109258"] 1
+["1", "110339"] 3
+["1", "110966"] 1
+["1", "111033"] 3
+["1", "111139"] 1
+["1", "111183"] 1
+["1", "112824"] 3

@@ -1,0 +1,93 @@
+log q5
+
+[maria_dev@sandbox-hdp ~]$ python tags_duo.py -r hadoop --hadoop-streaming-jar /usr/hdp/current/hadoop-mapreduce-client/
+hadoop-streaming.jar ml-25m/tags.csv > res.txt
+No configs found; falling back on auto-configuration
+No configs specified for hadoop runner
+Looking for hadoop binary in $PATH...
+Found hadoop binary: /usr/bin/hadoop
+Using Hadoop version 2.7.3.2.6.5.0
+Creating temp directory /tmp/tags_duo.maria_dev.20260401.205853.306209
+uploading working dir files to hdfs:///user/maria_dev/tmp/mrjob/tags_duo.maria_dev.20260401.205853.306209/files/wd...
+Copying other local files to hdfs:///user/maria_dev/tmp/mrjob/tags_duo.maria_dev.20260401.205853.306209/files/
+Running step 1 of 1...
+  packageJobJar: [] [/usr/hdp/2.6.5.0-292/hadoop-mapreduce/hadoop-streaming-2.7.3.2.6.5.0-292.jar] /tmp/streamjob6335242853650851013.jar tmpDir=null
+  Connecting to ResourceManager at sandbox-hdp.hortonworks.com/172.18.0.2:8032
+  Connecting to Application History server at sandbox-hdp.hortonworks.com/172.18.0.2:10200
+  Connecting to ResourceManager at sandbox-hdp.hortonworks.com/172.18.0.2:8032
+  Connecting to Application History server at sandbox-hdp.hortonworks.com/172.18.0.2:10200
+  Total input paths to process : 1
+  number of splits:2
+  Submitting tokens for job: job_1775046301650_0015
+  Submitted application application_1775046301650_0015
+  The url to track the job: http://sandbox-hdp.hortonworks.com:8088/proxy/application_1775046301650_0015/
+  Running job: job_1775046301650_0015
+  Job job_1775046301650_0015 running in uber mode : false
+   map 0% reduce 0%
+   map 58% reduce 0%
+   map 100% reduce 0%
+   map 100% reduce 79%
+   map 100% reduce 90%
+   map 100% reduce 100%
+  Job job_1775046301650_0015 completed successfully
+  Output directory: hdfs:///user/maria_dev/tmp/mrjob/tags_duo.maria_dev.20260401.205853.306209/output
+Counters: 49
+        File Input Format Counters
+                Bytes Read=38941404
+        File Output Format Counters
+                Bytes Written=6378251
+        File System Counters
+                FILE: Number of bytes read=24959554
+                FILE: Number of bytes written=50391706
+                FILE: Number of large read operations=0
+                FILE: Number of read operations=0
+                FILE: Number of write operations=0
+                HDFS: Number of bytes read=38941750
+                HDFS: Number of bytes written=6378251
+                HDFS: Number of large read operations=0
+                HDFS: Number of read operations=9
+                HDFS: Number of write operations=2
+        Job Counters
+                Data-local map tasks=2
+                Launched map tasks=2
+                Launched reduce tasks=1
+                Total megabyte-milliseconds taken by all map tasks=5516500
+                Total megabyte-milliseconds taken by all reduce tasks=5140750
+                Total time spent by all map tasks (ms)=22066
+                Total time spent by all maps in occupied slots (ms)=22066
+                Total time spent by all reduce tasks (ms)=20563
+                Total time spent by all reduces in occupied slots (ms)=20563
+                Total vcore-milliseconds taken by all map tasks=22066
+                Total vcore-milliseconds taken by all reduce tasks=20563
+        Map-Reduce Framework
+                CPU time spent (ms)=25260
+                Combine input records=0
+                Combine output records=0
+                Failed Shuffles=0
+                GC time elapsed (ms)=564
+                Input split bytes=346
+                Map input records=1093361
+                Map output bytes=22772828
+                Map output materialized bytes=24959560
+                Map output records=1093360
+                Merged Map outputs=2
+                Physical memory (bytes) snapshot=525139968
+                Reduce input groups=305356
+                Reduce input records=1093360
+                Reduce output records=305356
+                Reduce shuffle bytes=24959560
+                Shuffled Maps =2
+                Spilled Records=2186720
+                Total committed heap usage (bytes)=268435456
+                Virtual memory (bytes) snapshot=5851856896
+        Shuffle Errors
+                BAD_ID=0
+                CONNECTION=0
+                IO_ERROR=0
+                WRONG_LENGTH=0
+                WRONG_MAP=0
+                WRONG_REDUCE=0
+job output is in hdfs:///user/maria_dev/tmp/mrjob/tags_duo.maria_dev.20260401.205853.306209/output
+Streaming final output from hdfs:///user/maria_dev/tmp/mrjob/tags_duo.maria_dev.20260401.205853.306209/output...
+Removing HDFS temp directory hdfs:///user/maria_dev/tmp/mrjob/tags_duo.maria_dev.20260401.205853.306209...
+Removing temp directory /tmp/tags_duo.maria_dev.20260401.205853.306209...
