@@ -87,6 +87,7 @@ python tags_per_movie.py -r hadoop --hadoop-streaming-jar /usr/hdp/current/hadoo
 "100060"        10
 "100062"        2
 ```
+#### [Logs complets](https://github.com/Thib0727/BigDataCC2-Thollet-Muller/blob/main/log_q1.txt)
 
 ## 2- Combien de tags chaque utilisateur a-t-il ajoutés ?
 ```
@@ -157,3 +158,5 @@ head -20 res.txt
 "100140"        5
 "100141"        26
 ```
+
+#### [Logs complets](https://github.com/Thib0727/BigDataCC2-Thollet-Muller/blob/main/log_q2.txt)
