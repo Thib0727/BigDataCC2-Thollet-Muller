@@ -4,31 +4,40 @@ https://github.com/Thib0727/BigDataCC2-Thollet-Muller
 ## PREPARATION
 
 #### Décompresser le fichier
+```
 unzip ml-25m.zip
-
+```
 #### verification
+```
 ls -l
+```
 
 ### Envoi sur hdfs 
+```
 hdfs dfs -put ml-25m/tags.csv
+```
 
 #### On envoie aussi le fichier de petite taille
 
 ### Envoi vers la VM 
 
 #### Dans un nouveau cmd on execute
+```
 scp -P 2222 "C:\Users\ythollet\Downloads\echantillon-tags.csv" maria_dev@localhost:~
+```
 ### Envoi sur hdfs 
+```
 hdfs dfs -put echantillon-tags.csv
-
+```
 
 ## 1- Combien de tags chaque film possède-t-il ?
 ```
 nano tags_per_movie.py
 ```
 On copie-colle le code python
--*- coding: utf-8 -*-
+
 ```
+-*- coding: utf-8 -*-
 from mrjob.job import MRJob
 
 class TagsPerMovie(MRJob):
@@ -104,8 +113,8 @@ nano tags_per_user.py
 ```
 
 #### On copie-colle le code python
-#### -*- coding: utf-8 -*-
 ```
+-*- coding: utf-8 -*-
 from mrjob.job import MRJob
 
 class TagsPerUser(MRJob):
@@ -175,3 +184,169 @@ Le Mapper a correctement filtré le fichier des 1 093 360 enregistrements utiles
 
 2. Performance et Parallélisme
 On optimise le processus grâce au parallélisme ce qui réduit grandement le temps de traitement global sur les deux blocs de données HDFS. L'efficacité du cluster est soulignée par le score de 100% en localité de données (Data-local map tasks). Le temps de calcul total, réparti est de 17,8s pour le mapping et 8,9s pour produire enfin le fichier final res.txt.
+
+
+## 3- Combien de blocs le fichier occupe-t-il dans HDFS dans chacune des configurations ?
+```
+hdfs fsck ml-25m/tags.csv -files -blocks
+```
+
+```
+Total size:    38810332 B 
+Total blocks (validated):      1 (avg. block size 38810332 B)
+```
+le fichier a donc une taille totale de 38 mo, meme si on reduit la taille a 64mo ca donnera le meme résultat, essayons quand meme:
+```
+hdfs dfs -D dfs.blocksize=67108864 -put ml-25m/tags.csv /tags_64mo.csv
+```
+si on regarde ce qu'on obtient en sortie avec hdfs fsck /tags_64mo.csv -files -blocks, cela confrime notre hypothèse:
+
+```
+Total size:    38810332 B
+Total blocks (validated):      1 (avg. block size 38810332 B)
+```
+
+
+## 4- Combien de fois chaque tag a-t-il été utilisé pour taguer un film ?
+
+#### On créé un fichier python
+```
+nano tag_use_film.py
+```
+
+On copie-colle le code python
+
+```
+-*- coding: utf-8 -*-
+from mrjob.job import MRJob
+
+class FrequenceTags(MRJob):
+
+    def mapper(self, _, line):
+        if line.startswith("userId"):
+            return
+            
+        try:
+            row = line.split(',')
+            # Dans le fichier, l'index 2 correspond au texte du Tag
+            tag = row[2]
+            # On met le tag tout en minuscules pour éviter que "Drôle" et "drôle" soient comptés séparément
+            tag = tag.strip().lower() 
+            
+            yield tag, 1
+        except Exception:
+            pass
+
+    def reducer(self, tag, counts):
+        # On fait la somme de toutes les fois où ce tag précis a été utilisé
+        yield tag, sum(counts)
+
+if __name__ == '__main__':
+    FrequenceTags.run()
+```
+#### On lance le script python 
+
+```
+python tag_use_film.py -r hadoop --hadoop-streaming-jar /usr/hdp/current/hadoop-mapreduce-client/hadoop-streaming.jar ml-25m/tags.csv > res.txt
+```
+
+
+#### On visualise le contenu du resultat
+
+```
+head -20 res.txt
+
+"!950's superman tv show"       1
+"#1 prediction" 3
+"#adventure"    1
+"#antichrist"   1
+"#boring #lukeiamyourfather"    1
+"#boring"       1
+"#danish"       2
+"#documentary"  1
+"#entertaining" 1
+"#exorcism"     1
+"#fantasy"      2
+"#hanks #muchstories"   1
+"#jesus"        1
+"#lifelessons"  1
+"#lukeiamyourfather"    1
+"#metoo"        1
+"#mindfulness"  1
+"#notscary"     1
+"#rap"  1
+"#science"      1
+```
+
+
+## 5- Pour chaque film, combien de tags le même utilisateur a-t-il introduits ?
+
+#### On créé un fichier python
+```
+nano tags_duo.py
+```
+
+On copie-colle le code python
+
+```
+-*- coding: utf-8 -*-
+from mrjob.job import MRJob
+
+class TagsDuo(MRJob):
+
+    def mapper(self, _, line):
+        # Ignorer l'en-tête
+        if line.startswith("userId"):
+            return
+            
+        try:
+            row = line.split(',')
+            user_id = row[0]
+            movie_id = row[1]
+            
+            # On émet un tuple (Film, Utilisateur) comme clé
+            yield (movie_id, user_id), 1
+        except Exception:
+            pass
+
+    def reducer(self, duo, counts):
+        # duo contient (movie_id, user_id)
+        # On additionne le nombre de tags pour ce duo précis
+        yield duo, sum(counts)
+
+if __name__ == '__main__':
+    TagsDuo.run()
+```
+
+#### On lance le script Python
+```
+python tags_duo.py -r hadoop --hadoop-streaming-jar /usr/hdp/current/hadoop-mapreduce-client/hadoop-streaming.jar ml-25m/tags.csv > res.txt
+```
+
+
+#### On visualise le contenu du resultat
+
+```
+[maria_dev@sandbox-hdp ~]$ head -20 res.txt
+
+["1", "100538"] 4
+["1", "10231"]  2
+["1", "102568"] 4
+["1", "102901"] 1
+["1", "103368"] 1
+["1", "103371"] 1
+["1", "103883"] 3
+["1", "104394"] 9
+["1", "1048"]   1
+["1", "105717"] 1
+["1", "105809"] 5
+["1", "107432"] 2
+["1", "109146"] 2
+["1", "109258"] 1
+["1", "110339"] 3
+["1", "110966"] 1
+["1", "111033"] 3
+["1", "111139"] 1
+["1", "111183"] 1
+["1", "112824"] 3
+```
