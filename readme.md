@@ -138,3 +138,82 @@ head -20 res.txt
 "100130"        2
 "100140"        5
 "100141"        26
+
+
+## 3- Combien de blocs le fichier occupe-t-il dans HDFS dans chacune des configurations ?
+hdfs fsck ml-25m/tags.csv -files -blocks
+
+Total size:    38810332 B 
+Total blocks (validated):      1 (avg. block size 38810332 B)
+
+le fichier a donc une taille totale de 38 mo, meme si on reduit la taille a 64mo ca donnera le meme résultat, essayons quand meme:
+
+hdfs dfs -D dfs.blocksize=67108864 -put ml-25m/tags.csv /tags_64mo.csv
+
+si on regarde ce qu'on obtient en sortie avec hdfs fsck /tags_64mo.csv -files -blocks, cela confrime notre hypothèse:
+Total size:    38810332 B
+Total blocks (validated):      1 (avg. block size 38810332 B)
+
+
+## 4- Combien de fois chaque tag a-t-il été utilisé pour taguer un film ?
+
+# on creer un fichier python
+nano tag_use_film.py
+
+# On copie colle le code ci dessous
+
+# -*- coding: utf-8 -*-
+from mrjob.job import MRJob
+
+class FrequenceTags(MRJob):
+
+    def mapper(self, _, line):
+        if line.startswith("userId"):
+            return
+            
+        try:
+            row = line.split(',')
+            # Dans le fichier, l'index 2 correspond au texte du Tag
+            tag = row[2]
+            # On met le tag tout en minuscules pour éviter que "Drôle" et "drôle" soient comptés séparément
+            tag = tag.strip().lower() 
+            
+            yield tag, 1
+        except Exception:
+            pass
+
+    def reducer(self, tag, counts):
+        # On fait la somme de toutes les fois où ce tag précis a été utilisé
+        yield tag, sum(counts)
+
+if __name__ == '__main__':
+    FrequenceTags.run()
+
+# On lance le script python 
+python tag_use_film.py -r hadoop --hadoop-streaming-jar /usr/hdp/current/hadoop-mapreduce-client/hadoop-streaming.jar ml-25m/tags.csv > res.txt
+
+# Echantillon du resultat
+head -20 res.txt
+
+"!950's superman tv show"       1
+"#1 prediction" 3
+"#adventure"    1
+"#antichrist"   1
+"#boring #lukeiamyourfather"    1
+"#boring"       1
+"#danish"       2
+"#documentary"  1
+"#entertaining" 1
+"#exorcism"     1
+"#fantasy"      2
+"#hanks #muchstories"   1
+"#jesus"        1
+"#lifelessons"  1
+"#lukeiamyourfather"    1
+"#metoo"        1
+"#mindfulness"  1
+"#notscary"     1
+"#rap"  1
+"#science"      1
+
+
