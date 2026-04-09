@@ -87,7 +87,16 @@ python tags_per_movie.py -r hadoop --hadoop-streaming-jar /usr/hdp/current/hadoo
 "100060"        10
 "100062"        2
 ```
-#### [Logs complets](https://github.com/Thib0727/BigDataCC2-Thollet-Muller/blob/main/log_q1.txt)
+
+### Analyse des logs
+##### [Logs complets](https://github.com/Thib0727/BigDataCC2-Thollet-Muller/blob/main/log_q1.txt)
+
+1. Analyse des volumes (Compteurs Map-Reduce)
+L'examen des compteurs de volume permet de valider la rigueur algorithmique du script. Sur un total de 1 093 361 lignes lues (Map input records), le Mapper a généré exactement 1 093 360 couples clé-valeur. Cet écart d'une unité confirme que la condition de filtrage a correctement identifié et exclu la ligne d'en-tête CSV. La phase de réduction a ensuite agrégé ce million de lignes en 45 251 groupes uniques (Reduce input groups), ce qui correspond au nombre précis de films ayant reçu au moins une évaluation. Cette réduction drastique du volume de données (de ~1M à ~45k lignes) illustre parfaitement l'efficacité du paradigme MapReduce pour l'agrégation de données massives.
+
+2. Performance et Parallélisme
+L'analyse des logs révèle une exploitation optimale des mécanismes de distribution de Hadoop. Le framework a segmenté le fichier d'entrée en deux blocs distincts (Launched map tasks = 2), permettant un traitement parallèle qui divise théoriquement le temps d'exécution. Un point crucial est la confirmation du "Data Locality" pour l'intégralité des tâches : Hadoop a exécuté le code Python directement sur les nœuds stockant physiquement les blocs de données, supprimant ainsi tout goulot d'étranglement lié au transfert réseau. Avec un temps de traitement cumulé d'environ 30 secondes pour plus d'un million d'enregistrements, les performances sont excellentes pour un environnement Sandbox, démontrant la faible latence du moteur YARN lors de l'allocation des ressources.
+
 
 ## 2- Combien de tags chaque utilisateur a-t-il ajoutés ?
 ```
